@@ -3,14 +3,25 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class SearchController {
+class SearchController extends AbstractController {
 
     public function index()
     {
-        return new Response('<h1>Hi</h1>');
+        /**
+         * @Route("/")
+         * @Method({"GET", "POST"})
+         */
+        return $this->render('search/index.html.twig');
     }
 
+    public function call()
+    {
+
+    }
 }
 
 
