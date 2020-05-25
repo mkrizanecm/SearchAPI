@@ -6,11 +6,13 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
 
     <body>
-        <h1 class="row justify-content-center">Search GitHub Issues</h1>
         <div class="h-100 row justify-content-center align-items-center">
             <form method="post">
-                <input type="search" id="search" placeholder="Search for term" />
-                <input type="submit" value="Search">
+                <div class="form-group">
+                    <label for="search"><h2>Search GitHub Issues</h2></label>
+                    <input class="form-control" type="search" id="search" placeholder="Search for term popularity" />
+                    <input name="search" class="form-control" type="submit" value="Search">
+               </div>    
             </form>
         </div>
     </body>
