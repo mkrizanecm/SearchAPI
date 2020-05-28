@@ -8,8 +8,20 @@
     .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
 </style>
 
-<div class="row justify-content-center align-items-center">
-    <h1>Search GitIssues</h1>
-    <?php var_dump(form); exit; ?>
+    <div class="d-flex align-items-center justify-content-center">
+        <h1>Search GitIssues</h1>
+    </div>
+    <div class="d-flex align-items-center justify-content-center">
+        {{ form_start(form, {
+        'attr':{'class': 'navbar-form navbar-center'}
+        }) }}
+
+        {{ form_widget(form.term, {
+        'attr':{'class': 'form-term search-query'}
+        })}}
+
+        {{ form_end(form) }}
+    </div>
+
 </div>
 {% endblock %}
