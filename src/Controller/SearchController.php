@@ -22,11 +22,16 @@ class SearchController extends AbstractController
         if (!empty($search_term)) {
             $term = trim($search_term['term']);
 
-            // First check if term already exists if database
-    
+
 
             $response = $this->call($term);
-            var_dump($response); exit;
+
+            // First check if term already exists if database
+            if (!empty($response->total_count)) {
+                var_dump($response); exit;
+
+            }
+    
         }
 
         $form = $this->createFormBuilder(null)
@@ -41,26 +46,23 @@ class SearchController extends AbstractController
 
     public static function call($term)
     {
-        $url = "https://api.github.com/search/issues";
+        $url = "https://api.github.com/search/issues?q={$term}";
 
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_TIMEOUT => 10,
+            CURLOPT_TIMEOUT => 15,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_USERAGENT => $_SERVER['HTTP_USER_AGENT'],
-            CURLOPT_POSTFIELDS => "q={$term}",
         ));
 
         $response = curl_exec($curl);
 
         curl_close($curl);
 
-        return $response;
+        return json_decode($response);
     }    
 }
