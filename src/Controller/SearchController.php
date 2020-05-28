@@ -16,5 +16,11 @@ class SearchController extends AbstractController
         return $this->render('search/index.html.twig', [
             'controller_name' => 'SearchController',
         ]);
+
+    }
+
+    public static function call()
+    {
+        $connection = $this->getDoctrine()->getManager();
     }
 }
