@@ -20,7 +20,13 @@ class SearchController extends AbstractController
         $search_term = $response->request->get('form');
 
         if (!empty($search_term)) {
-            $term = $search_term['term'];
+            $term = trim($search_term['term']);
+
+            // First check if term already exists if database
+    
+
+            $response = $this->call($term);
+            var_dump($response); exit;
         }
 
         $form = $this->createFormBuilder(null)
@@ -33,8 +39,28 @@ class SearchController extends AbstractController
         ]);
     }
 
-    public static function call()
+    public static function call($term)
     {
-        $connection = $this->getDoctrine()->getManager();
-    }
+        $url = "https://api.github.com/search/issues";
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_USERAGENT => $_SERVER['HTTP_USER_AGENT'],
+            CURLOPT_POSTFIELDS => "q={$term}",
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        return $response;
+    }    
 }
