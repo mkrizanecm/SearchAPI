@@ -55,8 +55,19 @@ class SearchController extends AbstractController
             $total_records = (int)$total_records['results'];
             
             // Calculate term popularity
-            $term_mark = (1 - $term_result / $total_records) * 100 / 10 / 10;
-            $term_mark = number_format((float)$term_mark, 2, '.', '');
+            $term_score = 100 - (1 - $term_result / $total_records) * 100;
+            $term_score = $term_score / 10;   
+            $term_score = number_format((float)$term_score, 2, '.', '');
+
+            $final_result = [
+                'term' => $term,
+                'score' => $term_score,
+            ];
+            $final_result = json_encode($final_result);
+            
+            return new Response(
+                $final_result
+            );
         }
 
         return $this->render('search/index.html.twig', [
