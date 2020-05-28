@@ -32,11 +32,6 @@ class Records
      */
     private $datetime_created;
 
-    /**
-     * @ORM\Column(type="decimal", precision=10, scale=0, nullable=true)
-     */
-    private $mark;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -74,18 +69,6 @@ class Records
     public function setDatetimeCreated(?\DateTimeInterface $datetime_created): self
     {
         $this->datetime_created = $datetime_created;
-
-        return $this;
-    }
-
-    public function getMark(): ?string
-    {
-        return $this->mark;
-    }
-
-    public function setMark(?string $mark): self
-    {
-        $this->mark = $mark;
 
         return $this;
     }
