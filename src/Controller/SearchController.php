@@ -13,10 +13,11 @@ use Symfony\Component\Form\Extension\Core\Type\{TextType};
 class SearchController extends AbstractController
 {
     /**
-     * @Route("/", name="search")
+     * @Route("", name="search")
      */
     public function index(Request $response)
     {
+        $final_result = '';
         $form = $this->createFormBuilder(null)
             ->add('term', TextType::class)
             ->getForm();
@@ -64,15 +65,12 @@ class SearchController extends AbstractController
                 'score' => $term_score,
             ];
             $final_result = json_encode($final_result);
-            
-            return new Response(
-                $final_result
-            );
         }
 
         return $this->render('search/index.html.twig', [
             'controller_name' => 'SearchController',
             'form' => $form->createView(),
+            'final_result' => $final_result,
         ]);
     }
 
