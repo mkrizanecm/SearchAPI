@@ -17,6 +17,10 @@ class SearchController extends AbstractController
      */
     public function index(Request $response)
     {
+        $form = $this->createFormBuilder(null)
+            ->add('term', TextType::class)
+            ->getForm();
+
         // Check if there is a POST request
         $search_term = $response->request->get('form');
 
@@ -29,8 +33,8 @@ class SearchController extends AbstractController
             ]);
 
             $term_result = 0;
-            // If term already exists, just get results for the specific term
-            if (!empty($exist_term->getTerm())) {
+            // If term already exists, just get results for the specific term else save it to database
+            if (!empty($exist_term)) {
                 $term_result = $exist_term->getResults();
             } else {
                 $response = $this->call($term);
@@ -49,11 +53,11 @@ class SearchController extends AbstractController
              
             $total_records = $total_records_query->getOneOrNullResult();
             $total_records = (int)$total_records['results'];
+            
+            // Calculate term popularity
+            $term_mark = (1 - $term_result / $total_records) * 100 / 10 / 10;
+            $term_mark = number_format((float)$term_mark, 2, '.', '');
         }
-
-        $form = $this->createFormBuilder(null)
-            ->add('term', TextType::class)
-            ->getForm();
 
         return $this->render('search/index.html.twig', [
             'controller_name' => 'SearchController',
@@ -75,7 +79,7 @@ class SearchController extends AbstractController
         $entity->persist($record);
         $entity->flush();
     }
-
+    
     public function call($term)
     {
         // Call API
