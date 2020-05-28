@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Form\Extension\Core\Type\{TextType};
+use Symfony\Component\Form\Extension\Core\Type\{ChoiceType};
 
 
 class SearchController extends AbstractController
@@ -20,6 +21,12 @@ class SearchController extends AbstractController
         $final_result = '';
         $form = $this->createFormBuilder(null)
             ->add('term', TextType::class)
+            ->add('category', ChoiceType::class, [
+                'choices' => [
+                    'GitHub API' => 'api.github.com',
+                    // Here we can add other sites if they have similiar APIs (Twitter etc.)
+                ],
+            ])
             ->getForm();
 
         // Check if there is a POST request
@@ -27,6 +34,7 @@ class SearchController extends AbstractController
 
         if (!empty($search_term)) {
             $term = trim($search_term['term']);
+            $term_category = $search_term['category'];
 
             // First check if term already exists in database
             $exist_term = $this->getDoctrine()->getRepository('App\Entity\Records')->findOneBy([
@@ -38,9 +46,9 @@ class SearchController extends AbstractController
             if (!empty($exist_term)) {
                 $term_result = $exist_term->getResults();
             } else {
-                $response = $this->call($term);
+                $response = $this->call($term_category, $term);
                 if (!empty($response->total_count)) {
-                    $this->save_record($term, $response->total_count);
+                    $this->save_record($term, $response->total_count, $term_category);
                     $term_result = $response->total_count;
                 }
             }
@@ -74,7 +82,7 @@ class SearchController extends AbstractController
         ]);
     }
 
-    public function save_record($term, $results)
+    public function save_record($term, $results, $category)
     {
         // Save a new record
         $entity = $this->getDoctrine()->getManager();
@@ -83,16 +91,17 @@ class SearchController extends AbstractController
 
         $record->setTerm($term);
         $record->setResults($results);
+        $record->setCategory($category);
         $record->setDatetimeCreated(new \DateTime('@'.strtotime('now')));
 
         $entity->persist($record);
         $entity->flush();
     }
     
-    public function call($term)
+    public function call($term_category, $term)
     {
         // Call API
-        $url = "https://api.github.com/search/issues?q={$term}";
+        $url = "https://$term_category/search/issues?q={$term}";
 
         $curl = curl_init();
 
