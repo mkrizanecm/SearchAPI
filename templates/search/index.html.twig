@@ -8,8 +8,12 @@
     .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
 </style>
 {% if final_result %}
-    {{final_result}}
-    <a href="{{ path('search') }}" class="btn btn-primary" role="button">Search for more terms!</a>
+    <div class="d-flex align-items-center justify-content-center">
+        {{final_result}}
+    </div>    
+    <div class="row align-items-center justify-content-center">
+        <a href="{{ path('search') }}" class="btn btn-primary" role="button">Search for more terms!</a>
+    </div>
 {% else %}
     <div class="d-flex align-items-center justify-content-center">
         <h1>Search GitIssues</h1>
