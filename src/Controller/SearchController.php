@@ -64,9 +64,13 @@ class SearchController extends AbstractController
             $total_records = (int)$total_records['results'];
             
             // Calculate term popularity
-            $term_score = 100 - (1 - $term_result / $total_records) * 100;
-            $term_score = $term_score / 10;   
-            $term_score = number_format((float)$term_score, 2, '.', '');
+            if ($term_result == 0) {
+                $term_score = 0;
+            } else {
+                $term_score = 100 - (1 - $term_result / $total_records) * 100;
+                $term_score = $term_score / 10;   
+                $term_score = number_format((float)$term_score, 2, '.', '');
+            }
 
             $final_result = [
                 'term' => $term,
