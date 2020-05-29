@@ -34,49 +34,51 @@ class SearchController extends AbstractController
 
         if (!empty($search_term)) {
             $term = trim($search_term['term']);
-            $term_category = $search_term['category'];
+            if (!empty($term)) {
+                $term_category = $search_term['category'];
 
-            // First check if term already exists in database
-            $exist_term = $this->getDoctrine()->getRepository('App\Entity\Records')->findOneBy([
-                'term' => $term,
-            ]);
-
-            $term_result = 0;
-            // If term already exists, just get results for the specific term else save it to database
-            if (!empty($exist_term)) {
-                $term_result = $exist_term->getResults();
-            } else {
-                $response = $this->call($term_category, $term);
-                if (!empty($response->total_count)) {
-                    $this->save_record($term, $response->total_count, $term_category);
-                    $term_result = $response->total_count;
+                // First check if term already exists in database
+                $exist_term = $this->getDoctrine()->getRepository('App\Entity\Records')->findOneBy([
+                    'term' => $term,
+                ]);
+    
+                $term_result = 0;
+                // If term already exists, just get results for the specific term else save it to database
+                if (!empty($exist_term)) {
+                    $term_result = $exist_term->getResults();
+                } else {
+                    $response = $this->call($term_category, $term);
+                    if (!empty($response->total_count)) {
+                        $this->save_record($term, $response->total_count, $term_category);
+                        $term_result = $response->total_count;
+                    }
                 }
+    
+                // Get exist term result sum
+                $entity = $this->getDoctrine()->getManager();
+                $total_records_query = $entity->createQueryBuilder();
+                $total_records_query = $total_records_query->select( 'SUM(r.results) as results' )
+                ->from('App\Entity\Records', 'r' )	       
+                ->getQuery();
+                 
+                $total_records = $total_records_query->getOneOrNullResult();
+                $total_records = (int)$total_records['results'];
+                
+                // Calculate term popularity
+                if ($term_result == 0) {
+                    $term_score = 0;
+                } else {
+                    $term_score = 100 - (1 - $term_result / $total_records) * 100;
+                    $term_score = $term_score / 10;   
+                    $term_score = number_format((float)$term_score, 2, '.', '');
+                }
+    
+                $final_result = [
+                    'term' => $term,
+                    'score' => $term_score,
+                ];
+                $final_result = json_encode($final_result);
             }
-
-            // Get exist term result sum
-            $entity = $this->getDoctrine()->getManager();
-            $total_records_query = $entity->createQueryBuilder();
-            $total_records_query = $total_records_query->select( 'SUM(r.results) as results' )
-            ->from('App\Entity\Records', 'r' )	       
-            ->getQuery();
-             
-            $total_records = $total_records_query->getOneOrNullResult();
-            $total_records = (int)$total_records['results'];
-            
-            // Calculate term popularity
-            if ($term_result == 0) {
-                $term_score = 0;
-            } else {
-                $term_score = 100 - (1 - $term_result / $total_records) * 100;
-                $term_score = $term_score / 10;   
-                $term_score = number_format((float)$term_score, 2, '.', '');
-            }
-
-            $final_result = [
-                'term' => $term,
-                'score' => $term_score,
-            ];
-            $final_result = json_encode($final_result);
         }
 
         return $this->render('search/index.html.twig', [
